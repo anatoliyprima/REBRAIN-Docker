@@ -1,0 +1,52 @@
+DKR 01: Basics. Знакомство с Docker
+
+Задание:
+1 Установите Docker на предоставленную систему, как указано в официальной документации.
+
+https://docs.docker.com/engine/install/ubuntu/
+https://docs.docker.com/engine/install/linux-postinstall/
+
+В первую очередь проверяем, установлен ли докер на предоставленной машине. Елм докер уже есть, то нужно актуализировать версию. Удаляет уже установленный докер.
+
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+После удаления приступаем к установке докера из репозитория
+
+sudo apt-get update
+
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+Устанавливаем Docker Engine
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+Проверяем, установился правильно, запускаем тестовый образ
+
+sudo docker run hello-world
+
+
+
+2 Запустите контейнер на порту 28080 из официального образа nginx: docker run -d -p 127.0.0.1:28080:80 --name rbm-dkr-01 nginx:stable.
+
+3 Выведите в консоли список запущенных контейнеров командой: docker ps.
+
+4 При помощи утилиты curl, запросите адрес http://127.0.0.1:28080 - должна появиться приветственная страница nginx. Если не появляется, то запуск контейнера неуспешен по какой-то причине.
+
+5 Остановите ранее запущенный контейнер командой: docker stop rbm-dkr-01.
+
+6 Выполните команду docker ps, тем самым проверьте произошедшие изменения в списке запущенных контейнеров - список контейнеров должен быть пуст.
+
+7 При помощи утилиты curl, запросите адрес http://127.0.0.1:28080 - сейчас должна быть ошибка, поскольку мы уже удалили контейнер и ничего не слушается на этом порту.
+
+8 При помощи команды docker ps -a выведите список всех контейнеров в системе - в списке будет ваш остановленный контейнер

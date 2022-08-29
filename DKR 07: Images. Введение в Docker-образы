@@ -1,0 +1,37 @@
+DKR 07: Images. Введение в Docker-образы
+
+Задание:
+
+1 Выполните загрузку образа nginx:stable-alpine на свой локальный хост. Чтобы загрузить, но не запускать образ, следует использовать команду pull
+
+docker pull nginx:stable-alpine
+
+user@server:~$ docker images
+REPOSITORY   TAG             IMAGE ID       CREATED      SIZE
+nginx        stable-alpine   6cf0c840a5a4   5 days ago   23.2MB
+
+2 Добавьте к загруженному образу новый тег rbm-dkr-07 - имя репозитория должно оставаться таким же, поменяться только тег.
+
+docker tag [IMAGE ID] [name:tag]
+docker tag 6cf0c840a5a4 nginx:rbm-dkr-07
+
+3 Выведите список образов на вашем хосте.
+
+user@server:~$ docker images
+REPOSITORY   TAG             IMAGE ID       CREATED      SIZE
+nginx        rbm-dkr-07      6cf0c840a5a4   5 days ago   23.2MB
+nginx        stable-alpine   6cf0c840a5a4   5 days ago   23.2MB
+
+4 Запустите контейнер со следующими параметрами:
+    контейнер должен работать в фоне,
+    образ, который должен быть получен в результате переименования образа nginx:stable-alpine.
+
+user@server:~$ docker run -d nginx:rbm-dkr-07
+
+5 Выведите список запущенных контейнеров - контейнер должен быть запущен.
+
+user@server:~$ docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS     NAMES
+7c53251babec   nginx:rbm-dkr-07   "/docker-entrypoint.…"   6 seconds ago   Up 4 seconds   80/tcp    musing_spence
+
+Отправьте решение на проверку.

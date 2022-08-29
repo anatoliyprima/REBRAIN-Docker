@@ -1,0 +1,62 @@
+DKR 10: Images. Параметризация Dockerfile
+
+1 Создайте файл /home/user/Dockerfile, который
+
+- собирает из образа nginx, версия которого параметризуется через аргумент ARG с именем NG_VERSION;
+- устанавливает переменную окружения ENV с таким же именем NG_VERSION значение которой берется из ARG;
+- создает файл /opt/$ARG_FILE, где значение переменной передается через ARG, но не сохраняется в ENV.
+
+собираем Dockerfile:
+
+#задаем переменную NG_VERSION
+ARG NG_VERSION
+#собирать будем nginx, через переменную указываем тэг
+FROM nginx:$NG_VERSION
+
+#задаем переменную NG_VERSION
+ARG NG_VERSION
+#устанавливает переменную окружения ENV с таким же именем NG_VERSION значение которой берется из ARG
+ENV NG_VERSION ${NG_VERSION}
+
+#задаем переменную NG_VERSION
+ARG NG_VERSION
+RUN touch /opt/${NG_VERSION}
+
+2 Соберите образ из данного Dockerfile, передав необходимые аргументы и указав образу имя nginx:rbm-dkr-10
+
+docker build --build-arg NG_VERSION=stable -t nginx:rbm-dkr-10 .
+
+3 Выведите список образов на вашем хосте.
+
+user@server:~$ docker images
+REPOSITORY   TAG          IMAGE ID       CREATED         SIZE
+nginx        rbm-dkr-10   c24e293dcf78   5 seconds ago   142MB
+nginx        stable       ae3149f43818   10 hours ago    142MB
+
+4 Запустите контейнер из этого образа с именем rbm-dkr-10 в фоновом режиме и с передачей переменной окружения REBRAINME=DKR10.
+
+user@server:~/rbm-dkr-10$ docker run -d --env REBRAINME=DKR10 --name rbm-dkr-10 c24e293dcf78
+
+5 Выведите список запущенных контейнеров.
+
+user@server:~/rbm-dkr-10$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+9590f1cc8b1a   6225024d38c8   "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds   80/tcp    rbm-dkr-10
+
+6 Выведите в контейнере список переменных окружения - должна присутствовать установленная нами переменная окружения.
+
+user@server:~$ docker exec -ti rbm-dkr-10 printenv
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=d92406fded6d
+TERM=xterm
+REBRAINME=DKR10
+NGINX_VERSION=1.22.0
+NJS_VERSION=0.7.4
+PKG_RELEASE=1~bullseye
+NG_VERSION=stable
+HOME=/root
+
+7 Выведите в контейнере список файлов в директории /opt/.
+
+user@server:~$ docker exec -ti rbm-dkr-10 ls \opt
+stable

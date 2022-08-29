@@ -1,0 +1,74 @@
+DKR 02: Basics. Флаги запуска
+
+1 Скачайте конфигурационный файл nginx.
+
+git -c http.sslVerify=false clone https://gitlab.rebrainme.com/docker-course-students/dkr-nginx-conf-1.git
+
+username f.bakiyev@yandex.kz
+password BustuRA5
+
+2 Запустите контейнер со следующими параметрами:
+- должен работать в фоне,
+- слушает на хосте 127.0.0.1:8889,
+- имеет имя rbm-dkr-02,
+- должен пробрасывать скачанный вами конфигурационный файл nginx внутрь контейнера как основной конфигурационный файл,
+- образ - nginx:stable.
+
+! для начала надо найти ГДЕ в образе лежит заменяемый файл
+
+cкачиваем образ, в котором будем подмнять файл, в данном случае nginx:latest. Команда create, в отличии от команды run, только создает контейнер из образа, но не запускает его.
+
+docker create nginx:latest
+
+теперь, когда есть созданный контейнер, можно сделать из него архив, в любом формате. Для этого используется команда export, в формате:
+docker export имя_или_номер_контейнера > путь_к_файлу.формат
+
+docker export 47a99ad46d09>47a99ad46d09.tar
+
+теперь можно посмотреть содержимое архива, созданного из сохраненного контейнера, либо распаковав его, либо посмотрев непосредственного ахивный файл.
+
+find . -name nginx.conf
+./etc/nginx/nginx.conf
+
+видим, что искомый файл находится по пути ./etc/nginx/nginx.conf
+
+!!!
+чтобы посмотреть содержимое работающего контейнера, требуется зайти в него и выполнить вход в оболочку bash
+
+docker exec -it <container_id> bash
+
+далее уже просто оринетируемся по содержимому контейнера
+!!!
+
+!!!
+docker run -d \
+-p 127.0.0.8889:80 \ ! -p адрес_машины:порт_машины:порт_контейнера !
+--name rbm-dkr-02 \ ! --name имя_контейнера !
+-v /полный_путь_к_файлу_на_хосте:/полный_путь_к_файлу_в_образе \
+nginx:stable ! имя_образа:тэг !
+!!!
+
+
+docker run -d \
+-p 127.0.0.8889:80 \
+--name rbm-dkr-02 \
+-v /home/user/test/nginx.conf:/etc/nginx/nginx.conf \
+nginx:stable
+
+
+3 Проверьте работу, обратившись к 127.0.0.1:8889, - в ответ должно возвращать строку Welcome to the training program RebrainMe: Docker!
+
+user@server:~$ curl 127.0.0.1:8889
+Welcome to the training program RebrainMe: Docker!
+
+
+4 Выведите в консоли список запущенных контейнеров - контейнер должен быть запущен.
+
+docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                    NAMES
+4757bb75d764   nginx:stable   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   127.0.0.1:8889->80/tcp   rbm-dkr-02
+
+
+5 Выполните подсчет md5sum конфигурационного файла nginx командой: docker exec -ti rbm-dkr-02 md5sum /etc/nginx/nginx.conf.
+
+6 Не останавливая контейнер, отправьте задание на проверку

@@ -1,0 +1,52 @@
+DKR 09: Images. Основные директивы Dockerfile
+
+Задание:
+
+1 Напишите Dockerfile следующей конфигурации:
+
+- собирается из образа ubuntu:18.04,
+- в нем устанавливается пакет nginx,
+- в него копируется конфигурационный файл nginx,
+- в ENTRYPOINT используется запуск nginx,
+- в CMD должны быть определены такие же параметры запуска nginx, как в образе nginx:stable (обычно строка запуска nginx выглядит так nginx -g daemon off; )
+- основная рабочая директория внутри контейнера - /etc/nginx/,
+- должен быть определен Volume с путем /var/lib/nginx.
+
+перед написанием Dockerfile скачиваем конфигурационный файл nginx
+
+git -c http.sslVerify=false clone https://gitlab.rebrainme.com/docker-course-students/dkr-nginx-conf-4.git
+
+пишем Dockerfile:
+
+#на чем будет собираться образ
+FROM Ubuntu:18.04
+#устанавливаем пакет nginx. Обновляем список пакетов, устанавливаем пакет. флаг -у писать обязательно, так как при выполнении установки nginx потребуется согласиться в консоли
+RUN apt-get update && apt-get install nginx -y
+#копируем конфигурационный файл скачанный по ссылке
+COPY nginx.conf /etc/nginx/nginx.conf
+#прописываем entrypoint, должен  запускаться nginx
+ENTRYPOINT ["/usr/sbin/nginx"]
+#прописываем пааметры CMD для запуска nginx, как в образе nginx:stable (обычно строка запуска nginx выглядит так nginx -g daemon off; )
+CMD ["-g","daemon off;"]
+#прописываем основную рабочую директорию внутри контейнера - /etc/nginx/
+WORKDIR /etc/nginx/
+#определяем Volume с путем /var/lib/nginx
+VOLUME /mnt /var/lib/nginx
+
+2 Соберите этот образ с именем nginx:rbm-dkr-09
+
+docker build -t nginx:rbm-dkr-09 .
+
+3 Выведите список образов на вашем хосте.
+
+4 Запустите контейнер со следующими параметрами:
+
+    образ - собранный нами образ,
+    должно работать в фоне,
+    слушает на хосте 127.0.0.1:8901.
+
+docker run -d -p 127.0.0.1:8891:80 nginx:rbm-dkr-09
+
+5 Выведите список запущенных контейнеров - контейнер должен быть запущен.
+
+6 Проверьте работу, обратившись к 127.0.0.1:8991, - в ответ должно возвращать строку Welcome to the training program RebrainMe: Docker!

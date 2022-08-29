@@ -1,0 +1,60 @@
+DKR 08: Images. Введение в Dockerfile
+
+Задание:
+
+1 Скачайте конфигурационный файл nginx.
+
+git -c http.sslVerify=false clone https://gitlab.rebrainme.com/docker-course-students/dkr-nginx-conf-1
+
+2 Опишите Dockerfile, в котором:
+- как базовый образ используется nginx:stable,
+- внутрь контейнера как основной конфигурационный файл копируется скачанный вами nginx.conf.
+
+Содержимое Dockerfile:
+
+FROM nginx:stable
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+
+3 Соберите этот образ с именем nginx и тегом rbm-dkr-08
+
+4 Выведите список образов на вашем хосте.
+!!! точка указывает на то, что образ будет собиратся из текущей директории, в которой лежит Dockerfile !!!
+
+user@server:~/rbm-dkr-08$ docker build -t nginx:rbm-dkr-08 .
+
+Sending build context to Docker daemon  72.19kB
+Step 1/2 : FROM nginx:stable
+stable: Pulling from library/nginx
+214ca5fb9032: Pull complete
+50836501937f: Pull complete
+d838e0361e8e: Pull complete
+fcc7a415e354: Pull complete
+dc73b4533047: Pull complete
+e8750203e985: Pull complete
+Digest: sha256:38f8c1d9613f3f42e7969c3b1dd5c3277e635d4576713e6453c6193e66270a6d
+Status: Downloaded newer image for nginx:stable
+ ---> 0584b370e957
+Step 2/2 : COPY nginx.conf /etc/nginx/nginx.conf
+ ---> e80981e95595
+Successfully built e80981e95595
+Successfully tagged nginx:rbm-dkr-08
+
+5 Запустите контейнер со следующими параметрами:
+- образ - собранный нами образ,
+- должно работать в фоне,
+- слушает на хосте 127.0.0.1:8900.
+
+user@server:~/rbm-dkr-08$ docker run -d -p 127.0.0.1:8890:80 nginx:rbm-dkr-08
+
+6 Выведите список запущенных контейнеров - контейнер должен быть запущен.
+
+
+
+7 Проверьте работу, обратившись к 127.0.0.1:8900, - в ответ должно возвращать строку Welcome to the training program RebrainMe: Docker!
+
+user@server:~/rbm-dkr-08$ curl 127.0.0.1:8890
+Welcome to the training program RebrainMe: Docker!
+
+Отправьте решение на проверку.

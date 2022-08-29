@@ -1,0 +1,66 @@
+DKR 04: Basics. Внешнее хранилище
+
+1 Скачайте конфигурационный файл nginx.
+
+git -c http.sslVerify=false clone https://gitlab.rebrainme.com/docker-course-students/dkr-nginx-conf-3.git
+
+username f.bakiyev@yandex.kz
+password BustuRA5
+
+2  Создайте volume с именем rbm-dkr-04-volume.
+
+docker volume create rbm-dkr-04-volume
+
+3 Запустите контейнер со следующими параметрами:
+должен работать в фоне,
+слушает на хосте 127.0.0.1:8891,
+имеет имя rbm-dkr-04,
+должен пробрасывать скачанный вами конфигурационный файл внутрь контейнера как основной конфигурационный файл,
+образ - nginx:stable,
+в директорию с логами nginx должен быть подключен созданный вами Volume.
+
+!!!  требуется определить куда пишутся логи. В данном случае логи будут писаться в директорию /var/log/nginx/external
+
+docker run -d  \
+-p 127.0.0.1:8891:80 \
+--name rbm-dkr-04 \
+-v /home/user/dkr-nginx-conf-3/nginx.conf:/etc/nginx/nginx.conf \
+--mount source=rbm-dkr-04-volume,target=/var/log/nginx/external \
+nginx:stable
+
+либо
+
+docker run -d  \
+-p 127.0.0.1:8891:80 \
+--name rbm-dkr-04 \
+-v /home/user/dkr-nginx-conf-3/nginx.conf:/etc/nginx/nginx.conf \
+-v rbm-dkr-04-volume:/var/log/nginx/external \
+nginx:stable
+
+4 Проверьте работу, обратившись к 127.0.0.1:8891, - в ответ должно возвращать строку Welcome to the training program RebrainMe: Docker!
+
+user@server:~$ curl 127.0.0.1:8891
+Welcome to the training program RebrainMe: Docker!
+
+5 Выведите список запущенных контейнеров - контейнер должен быть запущен.
+
+user@server:~$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                    NAMES
+21ee9a67f13e   nginx:stable   "/docker-entrypoint.…"   45 seconds ago   Up 43 seconds   127.0.0.1:8891->80/tcp   rbm-dkr-04
+
+6 Выведите список существующих docker volumes.
+
+user@server:~$ docker volume ls
+DRIVER    VOLUME NAME
+local     rbm-dkr-04-volume
+
+7 Выведите содержимое volume на хостовой системе, воспользовавшись командой ls -la.
+
+user@server:/$ ls -la /var/lib/docker/volumes/rbm-dkr-04-volume/_data
+total 12
+drwxr-xr-x 2 root root 4096 May 22 17:08 .
+drwx-----x 3 root root 4096 May 22 17:03 ..
+-rw-r--r-- 1 root root   90 May 22 17:09 access.log
+-rw-r--r-- 1 root root    0 May 22 17:08 error.log
+
+Отправьте задание на проверку

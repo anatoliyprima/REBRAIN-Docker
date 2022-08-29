@@ -1,0 +1,100 @@
+DKR 06: Basics. Логирование
+
+1 Запустите контейнер со следующими параметрами:
+должно работать в фоне,
+слушает на хосте 127.0.0.1:8892,
+имеет имя rbm-dkr-06-local,
+образ - nginx:stable,
+логи должны использовать драйвер local и объем файла лога не должен превышать 10 MiB.
+
+docker run -d \
+-p 127.0.0.1:8892:80 \
+--name rbm-dkr-06-local \
+--log-driver=local --log-opt max-size==10m \
+nginx:stable
+
+2 Выведите список запущенных контейнеров.
+
+user@server:~$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                    NAMES
+46e3c13b223a   nginx:stable   "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   127.0.0.1:8892->80/tcp   rbm-dkr-06-local
+
+
+3 Один раз обратитесь к запущенному nginx, чтобы были записаны логи (например, curl --silent http://127.0.0.1:8892 > /dev/null).
+
+user@server:~$ curl --silent http://127.0.0.1:8892 > /dev/null
+
+4 Выполните вывод содержимого файла на хостовой системе, в который записаны логи контейнера.
+
+user@server:/$ sudo cat var/lib/docker/containers/46e3c13b223a0ba401014eb06beffce805dea2524b394e90244fed2247eb0576/local-logs/container.log
+
+5 Настройте глобальное сохранение логов с драйвером local и объемом логов в 10 MiB через файл /etc/docker/daemon.json.
+
+{
+  "log-driver": "local",
+  "log-opts": {
+    "max-size": "10m"
+  }
+}
+
+6 Запустите контейнер со следующими параметрами:
+должно работать в фоне,
+слушает на хосте 127.0.0.1:8893,
+имеет имя rbm-dkr-06-global,
+образ - nginx:stable,
+в команде запуска НЕ должны присутствовать параметры драйвера.
+
+user@server:/$ docker run -d \
+> -p 127.0.0.1:8893:80 \
+> --name rbm-dkr-06-global \
+> nginx:stable
+aa4b251f03f964b9b44e7206f54363cf123d886eb4ae505ed329903e14fc9c38
+
+7 Выведите список запущенных контейнеров.
+
+user@server:/$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                    NAMES
+aa4b251f03f9   nginx:stable   "/docker-entrypoint.…"   21 seconds ago   Up 20 seconds   127.0.0.1:8893->80/tcp   rbm-dkr-06-global
+46e3c13b223a   nginx:stable   "/docker-entrypoint.…"   15 minutes ago   Up 15 minutes   127.0.0.1:8892->80/tcp   rbm-dkr-06-local
+
+
+8 Один раз обратитесь к запущенному nginx, чтобы были записаны логи (например, curl --silent http://127.0.0.1:8893 > /dev/null).
+
+curl --silent http://127.0.0.1:8893 > /dev/null
+
+9 Выполните вывод содержимого файла на хостовой системе, в который записаны логи контейнера.
+
+user@server:/$ sudo ls -la var/lib/docker/containers/aa4b251f03f964b9b44e7206f54363cf123d886eb4ae505ed329903e14fc9c38
+total 44
+drwx-----x 4 root root 4096 May 22 19:22 .
+drwx-----x 4 root root 4096 May 22 19:22 ..
+-rw-r----- 1 root root 2341 May 22 19:23 aa4b251f03f964b9b44e7206f54363cf123d886eb4ae505ed329903e14fc9c38-json.log
+drwx------ 2 root root 4096 May 22 19:22 checkpoints
+-rw------- 1 root root 2907 May 22 19:22 config.v2.json
+-rw-r--r-- 1 root root 1523 May 22 19:22 hostconfig.json
+-rw-r--r-- 1 root root   13 May 22 19:22 hostname
+-rw-r--r-- 1 root root  174 May 22 19:22 hosts
+drwx-----x 2 root root 4096 May 22 19:22 mounts
+-rw-r--r-- 1 root root  611 May 22 19:22 resolv.conf
+-rw-r--r-- 1 root root   71 May 22 19:22 resolv.conf.hash
+
+user@server:/$ sudo cat var/lib/docker/containers/aa4b251f03f964b9b44e7206f54363cf123d886eb4ae505ed329903e14fc9c38/aa4b251f03f964b9b44e7206f54363cf123d886eb4ae505ed329903e14fc9c38-json.log
+{"log":"/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration\n","stream":"stdout","time":"2022-05-22T19:22:31.101194777Z"}
+{"log":"/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/\n","stream":"stdout","time":"2022-05-22T19:22:31.101251924Z"}
+{"log":"/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh\n","stream":"stdout","time":"2022-05-22T19:22:31.103844835Z"}
+{"log":"10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf\n","stream":"stdout","time":"2022-05-22T19:22:31.117545383Z"}
+{"log":"10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf\n","stream":"stdout","time":"2022-05-22T19:22:31.127241853Z"}
+{"log":"/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh\n","stream":"stdout","time":"2022-05-22T19:22:31.127566699Z"}
+{"log":"/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh\n","stream":"stdout","time":"2022-05-22T19:22:31.131176098Z"}
+{"log":"/docker-entrypoint.sh: Configuration complete; ready for start up\n","stream":"stdout","time":"2022-05-22T19:22:31.13275325Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: using the \"epoll\" event method\n","stream":"stderr","time":"2022-05-22T19:22:31.142550618Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: nginx/1.20.2\n","stream":"stderr","time":"2022-05-22T19:22:31.142574406Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: built by gcc 10.2.1 20210110 (Debian 10.2.1-6) \n","stream":"stderr","time":"2022-05-22T19:22:31.14257926Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: OS: Linux 5.4.0-51-generic\n","stream":"stderr","time":"2022-05-22T19:22:31.142583704Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576\n","stream":"stderr","time":"2022-05-22T19:22:31.142587852Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: start worker processes\n","stream":"stderr","time":"2022-05-22T19:22:31.142591983Z"}
+{"log":"2022/05/22 19:22:31 [notice] 1#1: start worker process 31\n","stream":"stderr","time":"2022-05-22T19:22:31.142595982Z"}
+{"log":"172.17.0.1 - - [22/May/2022:19:23:19 +0000] \"GET / HTTP/1.1\" 200 612 \"-\" \"curl/7.68.0\" \"-\"\n","stream":"stdout","time":"2022-05-22T19:23:19.96687336Z"}
+
+
+Отправьте решение на проверку.

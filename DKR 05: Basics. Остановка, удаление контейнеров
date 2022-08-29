@@ -1,0 +1,65 @@
+DKR 05: Basics. Остановка, удаление контейнеров
+
+1 Запустите 2 контейнера со следующими параметрами:
+
+должно работать в фоне,
+имеет имя rbm-dkr-05-run-X, где X - набор из 10 случайных букв и/или цифр которая должна генерироваться в момент запуска контейнера (можно использовать команду cat /dev/urandom | tr -cd 'a-f0-9' | head -c 10),
+образ - nginx:stable,
+команда для запуска обоих контейнеров должна быть одинаковой (выполнить одинаковую команду два раза подряд).
+
+user@server:~$ docker run -d --name rbm-dkr-05-run-$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 10) nginx:stable
+b6209fc981d498024d255f39f23efd424da25ea3bcd59132c0c022e38a3e3e58
+
+user@server:~$ docker run -d --name rbm-dkr-05-run-$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 10) nginx:stable
+f5ad3b155edb530daf74af33a5c51ebaed8b7f4c2e733d5934eebddf476505be
+
+2 Запустите контейнер со следующими параметрами:
+должно работать в фоне,
+имеет имя rbm-dkr-05-stop,
+образ - nginx:stable.
+
+3 Выполните команду docker ps, вывод перенаправьте в файл /home/user/ps.txt (docker ps | tee /home/user/ps.txt)
+
+user@server:~$ docker ps | tee /home/user/ps.txt
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS     NAMES
+53c59b098b46   nginx:stable   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    rbm-dkr-05-stop
+f5ad3b155edb   nginx:stable   "/docker-entrypoint.…"   3 minutes ago        Up 3 minutes        80/tcp    rbm-dkr-05-run-cb63b360e1
+b6209fc981d4   nginx:stable   "/docker-entrypoint.…"   3 minutes ago        Up 3 minutes        80/tcp    rbm-dkr-05-run-c5c1f582fe
+
+user@server:~$ cat ps.txt
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS     NAMES
+53c59b098b46   nginx:stable   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    rbm-dkr-05-stop
+f5ad3b155edb   nginx:stable   "/docker-entrypoint.…"   3 minutes ago        Up 3 minutes        80/tcp    rbm-dkr-05-run-cb63b360e1
+b6209fc981d4   nginx:stable   "/docker-entrypoint.…"   3 minutes ago        Up 3 minutes        80/tcp    rbm-dkr-05-run-c5c1f582fe
+
+4 Остановите контейнер rbm-dkr-05-stop.
+
+user@server:~$ docker stop rbm-dkr-05-stop
+rbm-dkr-05-stop
+
+5 Выведите список всех контейнеров.
+
+user@server:~$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+f5ad3b155edb   nginx:stable   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    rbm-dkr-05-run-cb63b360e1
+b6209fc981d4   nginx:stable   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    rbm-dkr-05-run-c5c1f582fe
+
+6 Одной командой остановите все запущенные контейнеры.
+
+user@server:~$ docker stop $(docker ps -q)
+f5ad3b155edb
+b6209fc981d4
+
+7 Выведите список всех контейнеров.
+
+user@server:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+8 Одной командой удалите все контейнеры, любой из разобранных методов подходит.
+
+user@server:~$ docker rm $(docker ps -qa)
+53c59b098b46
+f5ad3b155edb
+b6209fc981d4
+
+Отправьте решение на проверку.
