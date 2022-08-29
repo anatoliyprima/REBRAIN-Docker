@@ -1,5 +1,7 @@
 DKR 03: Basics. Запуск команд внутри контейнеров
 
+
+
 1 Скачайте конфигурационный файл nginx.
 
 git -c http.sslVerify=false clone https://gitlab.rebrainme.com/docker-course-students/dkr-nginx-conf-1.git
