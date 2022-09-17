@@ -1,0 +1,135 @@
+DKR 13: Images. Кэширование
+
+Используя Dockerfile, приведённый ниже
+
+FROM alpine:latest
+ARG MYARG
+RUN apk update && apk add build-base
+
+
+
+1. Выполните сборку образа, с именем cache:1
+
+docker build -t cache:1 .
+
+2. Повторите команду, но для имени образа используйте cache:2.
+
+docker build -t cache:2 .
+
+3. Повторите команду, с использованием флага --no-cache
+
+docker build -t cache:2 --no-cache .
+
+4. Сравните скорость выполнения обеих команд, их выводы и ID получившихся слоёв
+
+5. Соберите образ с именем cache:3. Используйте дополнительный флаг --build-arg и установите
+значение аргумента MYARG=3 (не используйте директиву --no-cache).
+
+docker build --build-arg MYARG=3 -t cache:3 .
+
+6. Повторите команду, убедитесь, что ваша сборка кэширована
+
+docker build --build-arg MYARG=3 -t cache:3 .
+
+7. Соберите образ с именем cache:4. Используйте дополнительный флаг --build-arg и установите
+значение аргумента MYARG=4 (не используйте директиву --no-cache)
+
+docker build --build-arg MYARG=4 -t cache:4 .
+
+8. Используя команду docker inspect найдите ваш аргумент
+
+docker inspect b656a0a22983
+[
+    {
+        "Id": "sha256:b656a0a22983c6af921f5f5a2094257c0cc21480df675e6ca84e71b4d63f4047",
+        "RepoTags": [
+            "cache:4"
+        ],
+        "RepoDigests": [],
+        "Parent": "sha256:562c3c5ee779833b537a2c8435787f6c5c92a23d628673680d58a8d0fbe6fd2d",
+        "Comment": "",
+        "Created": "2022-08-31T02:10:04.478429883Z",
+        "Container": "45e3bfb63c94d8ec6be84556ff8560cec749be47bcfa8e39511639a0b16d4111",
+        "ContainerConfig": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "|1",
+
+
+
+                "MYARG=4",
+
+
+
+                "/bin/sh",
+                "-c",
+                "apk update && apk add build-base"
+            ],
+            "Image": "sha256:562c3c5ee779833b537a2c8435787f6c5c92a23d628673680d58a8d0fbe6fd2d",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": null
+        },
+        "DockerVersion": "20.10.7",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/sh"
+            ],
+            "Image": "sha256:562c3c5ee779833b537a2c8435787f6c5c92a23d628673680d58a8d0fbe6fd2d",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": null
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 192634325,
+        "VirtualSize": 192634325,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/287f4bc9a1a941fd83863b89214dfd07441ea6eb6e43bac41520eec7b881f44a/diff",
+                "MergedDir": "/var/lib/docker/overlay2/0cc466d4d165a1d62cd7880de10123d97c267cda73ac5c888fc58f7882b732be/merged",
+                "UpperDir": "/var/lib/docker/overlay2/0cc466d4d165a1d62cd7880de10123d97c267cda73ac5c888fc58f7882b732be/diff",
+                "WorkDir": "/var/lib/docker/overlay2/0cc466d4d165a1d62cd7880de10123d97c267cda73ac5c888fc58f7882b732be/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:994393dc58e7931862558d06e46aa2bb17487044f670f310dffe1d24e4d1eec7",
+                "sha256:84b938fbf111c56817b6e3eb7a270cf4f7ab8a110cff5176488540af16aae612"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2022-08-31T02:10:04.728836659Z"
+        }
+    }
+]
